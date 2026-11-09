@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
@@ -9,25 +9,25 @@ function Login() {
   const [selectedRole, setSelectedRole] = useState('regular');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, isAuthenticated } = useAuth();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  if (isAuthenticated) {
+    return <div className="message">You are already logged in.</div>;
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
     setError('');
-
-    // Basic validation
     if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password');
+      setError('Please enter both username and password.');
       return;
     }
-
-    // Mock authentication - accepts any username/password
-    // In a real app, this would validate against a backend
     try {
       login(username, password, selectedRole);
-      // Redirect to saved articles after successful login
-      navigate('/saved');
-    } catch (err) {
+      const destination = location.state?.from?.pathname || '/saved';
+      navigate(destination, { replace: true });
+    } catch {
       setError('Login failed. Please try again.');
     }
   };
@@ -37,57 +37,38 @@ function Login() {
       <div className="login-card">
         <h2>Login to NewsReader</h2>
         <p className="login-subtitle">Access your personalized news experience</p>
-
-        {error && <div className="error-message">{error}</div>}
-
+        {error && <div className="error-message" role="alert">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-            />
+            <input id="username" type="text" autoComplete="username"
+              value={username} onChange={(event) => setUsername(event.target.value)}
+              placeholder="Enter your username" required />
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-            />
+            <input id="password" type="password" autoComplete="current-password"
+              value={password} onChange={(event) => setPassword(event.target.value)}
+              placeholder="Enter your password" required />
           </div>
-
           <div className="form-group">
-            <label htmlFor="role">Account Type</label>
-            <select
-              id="role"
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-            >
+            <label htmlFor="role">Demo account role</label>
+            <select id="role" value={selectedRole}
+              onChange={(event) => setSelectedRole(event.target.value)}>
               <option value="regular">Regular User</option>
-              <option value="premium">Premium User</option>
+              <option value="admin">Admin User</option>
             </select>
           </div>
-
-          <button type="submit" className="btn btn-primary login-button">
-            Login
-          </button>
+          <button type="submit" className="btn btn-primary login-button">Login</button>
         </form>
-
         <div className="demo-accounts">
-          <p className="demo-title">Demo Accounts (for testing):</p>
-          <p>Any username/password combination will work</p>
-          <p>Select "Regular" or "Premium" to test different access levels</p>
+          <p className="demo-title">Demo authentication</p>
+          <p>For this assignment prototype, any non-empty username and password work.</p>
+          <p>Choose Regular or Admin to test the two roles. This is not production authentication.</p>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Login;

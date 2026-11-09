@@ -1,96 +1,47 @@
-# NewsReader Starter App
+# NewsReader
 
-⚠️ **IMPORTANT: This is intentionally insecure starter code!**
+A React + Vite NewsReader assignment project with demo authentication, protected routes, user-scoped saved articles, and role-aware admin UI.
 
-This application has several security issues that you will need to fix as part of your assignment:
+## Run locally
 
-## Security Issues to Address
-
-1. **No Authentication**: Anyone can access all features without logging in
-2. **Shared State**: All users share the same saved articles (no user-specific data)
-3. **No Protected Routes**: The "Saved Articles" page should require authentication
-4. **No Role-Based Access**: There's no concept of different user types (regular vs premium)
-
-## Getting Started
-
-### Prerequisites
-- Node.js (v18 or higher)
-- A NY Times API key (get one free at https://developer.nytimes.com/)
-
-### Getting Your NY Times API Key
-
-1. Visit https://developer.nytimes.com/ and create a free account
-2. After logging in, click on your email address in the top right corner
-3. Click "Apps" to go to your apps page
-4. Click "New App" button
-5. Give your app a name (e.g., "NewsReader App")
-6. **Important**: Enable these two APIs:
-   - ✅ **Top Stories API**
-   - ✅ **Article Search API**
-7. Click "Save" to generate your API key
-
-### Installation
-
-1. Clone this repository
+1. Install Node.js 18+.
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Add your NY Times API key to `src/services/api.js`:
-   ```javascript
-   const NY_TIMES_API_KEY = 'your-actual-api-key-here';
+3. Copy `.env.example` to `.env` and add your NY Times API key:
+   ```ini
+   VITE_NY_TIMES_API_KEY=your_actual_key
    ```
-
-4. Run the development server:
+4. Start the development server:
    ```bash
    npm run dev
    ```
+5. Open the local URL printed by Vite (usually http://localhost:5173).
 
-5. Open your browser to `http://localhost:5173`
+Never commit `.env`. It is ignored by Git. Configure the same variable in Vercel's project environment-variable settings and redeploy after changing it.
 
-## Project Structure
+## Demo login
 
-```
-news-reader-starter/
-├── src/
-│   ├── components/
-│   │   ├── ArticleCard.jsx
-│   │   ├── Layout.jsx
-│   │   ├── Login.css
-│   │   ├── Login.jsx
-│   │   └── Navigation.jsx
-│   ├── context/
-│   │   └── ArticlesContext.jsx
-│   ├── pages/
-│   │   ├── HomePage.jsx
-│   │   ├── SearchPage.jsx
-│   │   └── SavedArticlesPage.jsx
-│   ├── services/
-│   │   └── api.js
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-├── index.html
-├── package.json
-└── vite.config.js
+The assignment starter does not include a backend or user database. For demonstration only, enter any non-empty username and password and select either Regular User or Admin User. Saved articles are stored separately by username in browser local storage; the current login is stored in session storage.
+
+- `/saved` requires a logged-in user.
+- `/admin` requires the demo `admin` role.
+- The admin page displays saved articles grouped by username.
+
+## Important security limitation before production
+
+`VITE_*` variables are embedded into the client-side JavaScript bundle. A `.env` file prevents accidental source-code commits, but it does **not** make a Vite `VITE_NY_TIMES_API_KEY` secret after deployment. For a genuinely secret API key, create a server-side API proxy (for example, a Vercel Function), store the key as a non-`VITE_` server environment variable, and have the browser call that function.
+
+Likewise, this project's login and role selection are intentionally a classroom demo, not secure production authentication. Anyone can select the admin role, and browser storage can be modified by the user. A production app must authenticate credentials on a server, hash passwords, issue secure HttpOnly/SameSite cookies or equivalent sessions, and enforce authorization on every server-side data/API operation. Client-side route guards improve navigation UX but are not a security boundary.
+
+## Useful commands
+
+```bash
+npm run lint
+npm run build
 ```
 
-## Features (Current)
+## Deploy to Vercel
 
-- Browse NY Times top stories
-- Search for articles by keyword
-- Bookmark articles (shared by all users - this needs to be fixed!)
-- Responsive design
-
-## Your Assignment
-
-You will need to:
-1. Implement user authentication (login/logout)
-2. Create protected routes that require authentication
-3. Make saved articles user-specific
-4. Add role-based access control (regular vs premium users)
-5. Secure the API key using environment variables
-6. Deploy the application to Vercel
-
-Good luck!
+Import the GitHub repository in Vercel. Add `VITE_NY_TIMES_API_KEY` in Project Settings → Environment Variables for the environments you use, then deploy. For production-grade secrecy, use the server-side proxy approach described above instead of exposing the key through a `VITE_` variable.
